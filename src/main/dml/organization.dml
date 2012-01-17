@@ -1,0 +1,80 @@
+package eu.ist.organization.domain;
+
+class OrganizationalManager;
+
+class Party;
+
+class Person extends Party {
+  String name;
+}
+
+class OrganizationalUnit extends Party {
+  String name;
+}
+
+class Role {
+  String name;
+}
+
+class RolePlay;
+
+class AccountabilityType {
+  String name;
+}
+
+class Accountability;
+
+class EffectivePeriod {
+  DateTime startTime;
+  DateTime endTime;
+}
+
+relation AccountabilityHasType {
+  AccountabilityType playsRole type { multiplicity 1..1; }
+  Accountability playsRole accountability { multiplicity 0..*; }
+}
+
+relation AccountabilitiesHaveRolePlays {
+  Accountability playsRole accountability { multiplicity 1..1; }
+  RolePlay playsRole rolePlay { multiplicity 0..*; }
+}
+
+relation AccountabilityIsActiveOnEffectivePeriod {
+  Accountability playsRole accountability { multiplicity 1..1; }
+  EffectivePeriod playsRole effectivePeriod { multiplicity 0..*; }
+}
+
+relation AccontabilityTypeHasRoles {
+  AccountabilityType playsRole accountabilityType { multiplicity 1..1; }
+  Role playsRole role { multiplicity 0..*; }
+}
+
+relation RolesHaveRolePlays {
+  RolePlay playsRole rolePlay { multiplicity 0..*; }
+  Role playsRole role { multiplicity 1..1; }
+}
+
+relation PartyPlaysRole {
+  Party playsRole player { multiplicity 1..1; }
+  RolePlay playsRole rolePlay { multiplicity 0..*; }
+}
+
+relation OrganizationalManagerHasPersons {
+  OrganizationalManager playsRole organizationalManager { multiplicity 1..1; }
+  Person playsRole person { multiplicity 0..*; }
+}
+
+relation OrganizationalManagerHasOrganizationalUnit {
+  OrganizationalManager playsRole organizationalManager { multiplicity 1..1; }
+  OrganizationalUnit playsRole organizationalUnit { multiplicity 0..*; }
+}
+
+relation OrganizationalManagerHasAccountabilityTypes {
+  OrganizationalManager playsRole organizationalManager {  multiplicity 1..1; }
+  AccountabilityType playsRole accountabilityType { multiplicity 0..*; }
+}
+
+relation OrganizationalManagerManagesExistingRoles {
+  OrganizationalManager playsRole organizationalManager { multiplicity 1..1; }
+  Role playsRole role { multiplicity 0..*; }
+}
