@@ -1,11 +1,36 @@
 package eu.ist.organization.domain;
 
+import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Map;
 import java.util.Set;
+
+import org.joda.time.DateTime;
+
 import eu.ist.organization.domain.exception.ActiveAccountabilityExistsException;
 import eu.ist.organization.util.AccountabilityConfiguration;
 
 public class OrganizationalManager extends OrganizationalManager_Base {
+  
+  public OrganizationalManager() throws ActiveAccountabilityExistsException {
+    Person obiwan = createNewPerson("Obi Wan Kenobi");
+    Person lukeSkywalker = createNewPerson("Luke Skywalker");
+    Role masterJedi = createNewRole("Master");
+    Role apprenticeJedi = createNewRole("Apprentice");
+    Set<Role> roleSet = new HashSet<Role>();
+    roleSet.add(masterJedi);
+    roleSet.add(apprenticeJedi);
+    AccountabilityType jediGuidance = createNewAccountabilityType("Jedi Guidance", roleSet);
+    
+    Map<Party,Role> partyRoleMap = new HashMap<Party,Role>();
+    partyRoleMap.put(obiwan, masterJedi);
+    partyRoleMap.put(lukeSkywalker, apprenticeJedi);
+    AccountabilityConfiguration ac = new AccountabilityConfiguration(jediGuidance, partyRoleMap, new DateTime());
+
+    createNewAccountability(ac);
+
+    
+  }
   
   public OrganizationalUnit createNewOrganizationalUnit(String name) {
     OrganizationalUnit organizationalUnit = new OrganizationalUnit(name);

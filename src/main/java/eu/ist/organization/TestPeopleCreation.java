@@ -42,7 +42,7 @@ public class TestPeopleCreation {
     roleSet.add(studentRole);
     roleSet.add(universityRole);
     roleSet.add(supervisorRole);
-    AccountabilityType at = om.createNewAccountabilityType("STUDENT_MAKES_PHD_ON_UNIVERSITY_AND_IS_SUPERVISE", roleSet);
+    AccountabilityType at = om.createNewAccountabilityType("STUDENT_MAKES_PHD_ON_UNIVERSITY_AND_IS_SUPERVISED", roleSet);
     
     OrganizationalUnit ist = om.createNewOrganizationalUnit("IST");
     Person david = om.createNewPerson("David Martinho");

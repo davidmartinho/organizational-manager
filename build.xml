@@ -1,7 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project basedir="." default="dist" name="organization">
+<project basedir="." default="jar" name="organization">
 
   <property name="application.name" value="${ant.project.name}"/>
+	
+  <property name="tomcat.home" value="/home/davidmartinho/Applications/apache-tomcat-7.0.23"/>
 	
   <property name="src.rel-dir" value="src/main"/>
   <property name="build.rel-dir" value="target"/>
@@ -9,26 +11,28 @@
   <property name="dist.rel-dir" value="dist"/>
   <property name="eclipse.build.rel-dir" value="bin"/>	
 
-  <property name="java.src.rel-dir" value="${src.rel-dir}/java"/>
-  <property name="dml.src.rel-dir" value="${src.rel-dir}/dml"/>
-  <property name="config.src.rel-dir" value="${src.rel-dir}/config"/>
+  <property name="java.src.rel-dir" value="${src.rel-dir}/java" />
+  <property name="dml.src.rel-dir" value="${src.rel-dir}/dml" />
+  <property name="config.src.rel-dir" value="${src.rel-dir}/config" />
+  <property name="webapp.src.rel-dir" value="${src.rel-dir}/webapp" />
 	
-  <property name="generated-src.build.rel-dir" value="${build.rel-dir}/src"/>
-  <property name="classes.build.rel-dir" value="${build.rel-dir}/classes"/>
+  <property name="generated-src.build.rel-dir" value="${build.rel-dir}/src" />
+  <property name="classes.build.rel-dir" value="${build.rel-dir}/classes" />
 
-  <property name="jar.filename" value="${application.name}.jar"/>
+  <property name="jar.filename" value="${application.name}.jar" />
+  <property name="war.filename" value="${application.name}.war" />
   <property name="build.properties.filename" value="build.properties" />
-  <property name="dml.filename" value="${application.name}.dml"/>
-	<property name="dml.rel-file" value="${dml.src.rel-dir}/${dml.filename}"/>
-	<property name="build.properties.rel-dir" value="${config.src.rel-dir}/${build.properties.filename}"/>
+  <property name="dml.filename" value="${application.name}.dml" />
+	<property name="dml.rel-file" value="${dml.src.rel-dir}/${dml.filename}" />
+	<property name="build.properties.rel-dir" value="${config.src.rel-dir}/${build.properties.filename}" />
 
   <property file="${build.properties.rel-dir}" />
 	
   <!-- The encoding of all the source files should be the same! -->
-  <property name="javac.encoding" value="UTF-8"/>
+  <property name="javac.encoding" value="UTF-8" />
 
   <!-- java.file.encoding should match your terminal's encoding -->
-  <property name="java.file.encoding" value="UTF-8"/>
+  <property name="java.file.encoding" value="UTF-8" />
 
   <path id="project.classpath">
     <pathelement location="${classes.build.rel-dir}" />
@@ -73,6 +77,7 @@
       <fileset file="${dml.rel-file}"/>
       <classpath refid="project.classpath" />
     </dml-post-processor>
+    <copy file="${dml.rel-file}" todir="${classes.build.rel-dir}"/>
   </target>
 
 	<target name="run" depends="instrument-classes" description="Runs the tests">
@@ -83,10 +88,25 @@
 		</java>
 	</target>
 	
-  <target name="dist" depends="instrument-classes" description="Create a jar file">
-    <copy file="${dml.rel-file}" todir="${classes.build.rel-dir}"/>
+  <target name="jar" depends="instrument-classes" description="Create a jar file">
     <zip destfile="${dist.rel-dir}/${jar.filename}" basedir="${classes.build.rel-dir}"/>
   </target>
+	
+	<target name="prepare-war" depends="instrument-classes">
+	  <move todir="${build.rel-dir}/WEB-INF/">
+	    <fileset dir="${build.rel-dir}" />
+	  </move>
+		<delete dir="${build.rel-dir}/WEB-INF/src" />
+		<copy todir="${build.rel-dir}/WEB-INF/lib">
+		  <fileset dir="${lib.rel-dir}" />
+		</copy>
+	</target>
+	
+	<target name="war" depends="prepare-war" description="Creates a war file">
+    <war destfile="${dist.rel-dir}/${war.filename}" webxml="${webapp.src.rel-dir}/web.xml">
+      <fileset dir="${build.rel-dir}"	/>
+    </war>
+	</target>
 
   <target name="clean" description="Cleans the compiled classes and generated sources">
     <delete dir="${build.rel-dir}"/>
@@ -103,6 +123,17 @@
         CREATE SCHEMA IF NOT EXISTS ${sql.db}
       </transaction>
     </sql>
+  </target>
+	
+	<target name="clean-all" description="Cleans the all project including DB" depends="clean,clean-db" />
+	
+  <target name="undeploy" description="Undeploys the WAR from Apache Tomcat">
+    <delete dir="${tomcat.home}/webapps/${application.name}/"/>
+    <delete file="${tomcat.home}/webapps/${war.filename}"/>
+  </target>
+  
+  <target name="deploy" description="Deploys the WAR to Apache Tomcat">
+    <copy file="${dist.rel-dir}/${war.filename}" todir="${tomcat.home}/webapps"/>
   </target>
 
 </project>
