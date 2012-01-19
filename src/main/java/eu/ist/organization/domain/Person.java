@@ -22,4 +22,14 @@ public class Person extends Person_Base {
   public String toString() {
     return "Person: "+getName();
   }
+
+  public Set<Accountability> getActiveAccountabilitySet() {
+    Set<Accountability> activeAccountabilitySet = new HashSet<Accountability>();
+    for(RolePlay rolePlay : getRolePlaySet()) {
+      if(rolePlay.getAccountability().isActive()) {
+        activeAccountabilitySet.add(rolePlay.getAccountability());
+      }
+    }
+    return activeAccountabilitySet; 
+  }
 }
